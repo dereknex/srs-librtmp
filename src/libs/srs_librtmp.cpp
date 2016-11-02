@@ -1017,7 +1017,20 @@ int srs_rtmp_go_packet(Context* context, SrsCommonMessage* msg,
     
     return ret;
 }
+int srs_rtmp_read_h264frame(srs_rtmp_t rtmp, H264Frame *frame){
+    int ret = ERROR_SUCCESS;
+        
+    srs_assert(rtmp != NULL);
+    srs_assert(frame != NULL);
 
+    // Context *context = (Context *)rtmp;
+    // char *data = NULL;
+    // int size = 0;
+    // if ((ret = context->avc_raw.annexb_demux(context->h264_raw_stream, &data, &size)!= ERROR_SUCCESS){
+
+    // }
+    return ret;
+}
 int srs_rtmp_read_packet(srs_rtmp_t rtmp, char* type, u_int32_t* timestamp, char** data, int* size)
 {
     *type = 0;
