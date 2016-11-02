@@ -48,7 +48,7 @@ clean:
 SRS_OBJS = ../../objs
 # srs-librtmp for publish/play, built by srs.
 SRS_LIBRTMP_I = $(SRS_OBJS)/include/srs_librtmp.h
-SRS_LIBRTMP_L = $(SRS_OBJS)/lib/srs_librtmp.a
+SRS_LIBRTMP_L = $(SRS_OBJS)/lib/srs_librtmp.so
 # openssl for complex handshake, built by srs.
 SRS_LIBSSL_L =
 # public depends, the Makefile or public headers.

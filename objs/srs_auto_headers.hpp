@@ -2,10 +2,10 @@
 #ifndef SRS_AUTO_HEADER_HPP
 #define SRS_AUTO_HEADER_HPP
 
-#define SRS_AUTO_BUILD_TS "1478060438"
-#define SRS_AUTO_BUILD_DATE "2016-11-02 12:20:38"
+#define SRS_AUTO_BUILD_TS "1478066914"
+#define SRS_AUTO_BUILD_DATE "2016-11-02 14:08:34"
 #define SRS_AUTO_UNAME "Darwin Dereks-BB-8.local 15.6.0 Darwin Kernel Version 15.6.0: Thu Sep  1 15:01:16 PDT 2016; root:xnu-3248.60.11~2/RELEASE_X86_64 x86_64"
-#define SRS_AUTO_USER_CONFIGURE "--x86-x64  --export-librtmp-project=/Users/Derek/Workspaces/srs-librtmp"
+#define SRS_AUTO_USER_CONFIGURE "--x86-x64  --export-librtmp-project=/Users/Derek/Workspaces/srs-librtmp --without-ssl"
 #define SRS_AUTO_CONFIGURE "--prefix=/usr/local/srs --without-hls --without-hds --without-dvr --without-nginx --without-ssl --without-ffmpeg --without-transcode --without-ingest --without-stat --without-http-callback --without-http-server --without-stream-caster --without-http-api --with-librtmp --with-research --without-utest --without-gperf --without-gmc --without-gmp --without-gcp --without-gprof --without-arm-ubuntu12 --without-mips-ubuntu12 --log-trace"
 
 #define SRS_X86_X64
