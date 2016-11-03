@@ -1017,18 +1017,93 @@ int srs_rtmp_go_packet(Context* context, SrsCommonMessage* msg,
     
     return ret;
 }
+
+static int raw_avc_demux(char* data, int size, H264Frame *frame)
+{
+    int ret = ERROR_SUCCESS;
+    SrsStream *stream = new SrsStream();
+    
+    if (!data || size <= 0) {
+        srs_trace("no video present, ignore it.");
+        return ret;
+    }
+    
+    if ((ret = stream->initialize(data, size)) != ERROR_SUCCESS) {
+        return ret;
+    }
+
+    // video decode
+    if (!stream->require(1)) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("avc decode frame_type failed. ret=%d", ret);
+        return ret;
+    }
+    
+    // @see: E.4.3 Video Tags, video_file_format_spec_v10_1.pdf, page 78
+    int8_t frame_type = stream->read_1bytes();
+    int8_t codec_id = frame_type & 0x0f;
+    frame_type = (frame_type >> 4) & 0x0f;
+    
+    frame->is_keyframe = frame_type==SrsCodecVideoAVCFrameKeyFrame?1:0;
+    
+    // ignore info frame without error,
+    // @see https://github.com/ossrs/srs/issues/288#issuecomment-69863909
+    if (frame_type == SrsCodecVideoAVCFrameVideoInfoFrame) {
+        srs_warn("avc igone the info frame, ret=%d", ret);
+        return ret;
+    }
+    
+    // only support h.264/avc
+    if (codec_id != SrsCodecVideoAVC) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("avc only support video h.264/avc codec. actual=%d, ret=%d", codec_id, ret);
+        return ret;
+    }
+    
+    if (!stream->require(4)) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("avc decode avc_packet_type failed. ret=%d", ret);
+        return ret;
+    }
+    stream->read_1bytes();
+    int32_t composition_time = stream->read_3bytes();
+    
+    // pts = dts + cts.
+    frame->timestamp = composition_time;
+    
+    // if (avc_packet_type == SrsCodecVideoAVCTypeNALU){
+    //     if ((ret = avc_demux_annexb_format(stream, sample)) != ERROR_SUCCESS) {
+    //         srs_error("avc decode avc_packet_type failed. ret=%d", ret);
+    //     }
+    // }
+    
+    // srs_info("avc decoded, type=%d, codec=%d, avc=%d, cts=%d, size=%d",
+    //     frame_type, video_codec_id, avc_packet_type, composition_time, size);
+    
+    return ret;
+}
+
 int srs_rtmp_read_h264frame(srs_rtmp_t rtmp, H264Frame *frame){
     int ret = ERROR_SUCCESS;
         
     srs_assert(rtmp != NULL);
     srs_assert(frame != NULL);
 
-    // Context *context = (Context *)rtmp;
-    // char *data = NULL;
-    // int size = 0;
-    // if ((ret = context->avc_raw.annexb_demux(context->h264_raw_stream, &data, &size)!= ERROR_SUCCESS){
+    Context *context = (Context *)rtmp;
+    char *data = NULL;
+    int size = 0;
+    ret = context->avc_raw.annexb_demux(&context->h264_raw_stream, &data, &size);
+    printf("%p\n", &context->avc_raw);
+    if (ret!= ERROR_SUCCESS){
+        return ret;
+    }
+    raw_avc_demux(data, size, frame);
+    frame->data = data;
+    // memcpy(frame->data, data);
+    frame->size = size;
 
-    // }
+
+
     return ret;
 }
 int srs_rtmp_read_packet(srs_rtmp_t rtmp, char* type, u_int32_t* timestamp, char** data, int* size)
